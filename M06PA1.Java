@@ -192,6 +192,6 @@ public class M06PA1 extends Application
     }
 
     public static void main(String[] args) {
-        launch(args); // Launch JavaFX app
+        launch(args); 
     }
 }
