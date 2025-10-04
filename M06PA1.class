@@ -1,0 +1,225 @@
+// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+public class M06PA1 extends Application {
+   private static final String URL = "jdbc:mysql://localhost:3306/StaffDB";
+   private static final String USER = "root";
+   private static final String PASSWORD = "";
+   private TextField tfId = new TextField();
+   private TextField tfLastName = new TextField();
+   private TextField tfFirstName = new TextField();
+   private TextField tfMi = new TextField();
+   private TextField tfAddress = new TextField();
+   private TextField tfCity = new TextField();
+   private TextField tfState = new TextField();
+   private TextField tfTelephone = new TextField();
+   private TextField tfEmail = new TextField();
+   private Button btView = new Button("View");
+   private Button btInsert = new Button("Insert");
+   private Button btUpdate = new Button("Update");
+   private Connection conn;
+
+   public M06PA1() {
+   }
+
+   public void start(Stage var1) {
+      GridPane var2 = new GridPane();
+      var2.setPadding(new Insets(10.0));
+      var2.setHgap(10.0);
+      var2.setVgap(5.0);
+      var2.add(new Label("ID"), 0, 0);
+      var2.add(this.tfId, 1, 0);
+      var2.add(new Label("Last Name"), 0, 1);
+      var2.add(this.tfLastName, 1, 1);
+      var2.add(new Label("First Name"), 0, 2);
+      var2.add(this.tfFirstName, 1, 2);
+      var2.add(new Label("MI"), 0, 3);
+      var2.add(this.tfMi, 1, 3);
+      var2.add(new Label("Address"), 0, 4);
+      var2.add(this.tfAddress, 1, 4);
+      var2.add(new Label("City"), 0, 5);
+      var2.add(this.tfCity, 1, 5);
+      var2.add(new Label("State"), 0, 6);
+      var2.add(this.tfState, 1, 6);
+      var2.add(new Label("Telephone"), 0, 7);
+      var2.add(this.tfTelephone, 1, 7);
+      var2.add(new Label("Email"), 0, 8);
+      var2.add(this.tfEmail, 1, 8);
+      var2.add(this.btView, 0, 9);
+      var2.add(this.btInsert, 1, 9);
+      var2.add(this.btUpdate, 2, 9);
+      this.btView.setOnAction((var1x) -> {
+         this.viewStaff();
+      });
+      this.btInsert.setOnAction((var1x) -> {
+         this.insertStaff();
+      });
+      this.btUpdate.setOnAction((var1x) -> {
+         this.updateStaff();
+      });
+
+      try {
+         this.conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/StaffDB", "root", "");
+         System.out.println("âœ… Connected to database.");
+      } catch (SQLException var4) {
+         var4.printStackTrace();
+         this.showAlert("Database Connection Error", var4.getMessage());
+      }
+
+      Scene var3 = new Scene(var2, 500.0, 400.0);
+      var1.setTitle("Staff Database Manager");
+      var1.setScene(var3);
+      var1.show();
+   }
+
+   private void viewStaff() {
+      String var1 = "SELECT * FROM Staff WHERE id = ?";
+
+      try {
+         PreparedStatement var2 = this.conn.prepareStatement(var1);
+
+         try {
+            var2.setString(1, this.tfId.getText().trim());
+            ResultSet var3 = var2.executeQuery();
+            if (var3.next()) {
+               this.tfLastName.setText(var3.getString("lastName"));
+               this.tfFirstName.setText(var3.getString("firstName"));
+               this.tfMi.setText(var3.getString("mi"));
+               this.tfAddress.setText(var3.getString("address"));
+               this.tfCity.setText(var3.getString("city"));
+               this.tfState.setText(var3.getString("state"));
+               this.tfTelephone.setText(var3.getString("telephone"));
+               this.tfEmail.setText(var3.getString("email"));
+            } else {
+               this.showAlert("Not Found", "No staff member with ID " + this.tfId.getText());
+            }
+         } catch (Throwable var6) {
+            if (var2 != null) {
+               try {
+                  var2.close();
+               } catch (Throwable var5) {
+                  var6.addSuppressed(var5);
+               }
+            }
+
+            throw var6;
+         }
+
+         if (var2 != null) {
+            var2.close();
+         }
+      } catch (SQLException var7) {
+         this.showAlert("Error", var7.getMessage());
+      }
+
+   }
+
+   private void insertStaff() {
+      String var1 = "INSERT INTO Staff (id, lastName, firstName, mi, address, city, state, telephone, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+      try {
+         PreparedStatement var2 = this.conn.prepareStatement(var1);
+
+         try {
+            var2.setString(1, this.tfId.getText().trim());
+            var2.setString(2, this.tfLastName.getText().trim());
+            var2.setString(3, this.tfFirstName.getText().trim());
+            var2.setString(4, this.tfMi.getText().trim());
+            var2.setString(5, this.tfAddress.getText().trim());
+            var2.setString(6, this.tfCity.getText().trim());
+            var2.setString(7, this.tfState.getText().trim());
+            var2.setString(8, this.tfTelephone.getText().trim());
+            var2.setString(9, this.tfEmail.getText().trim());
+            int var3 = var2.executeUpdate();
+            if (var3 > 0) {
+               this.showAlert("Success", "Record inserted successfully!");
+            }
+         } catch (Throwable var6) {
+            if (var2 != null) {
+               try {
+                  var2.close();
+               } catch (Throwable var5) {
+                  var6.addSuppressed(var5);
+               }
+            }
+
+            throw var6;
+         }
+
+         if (var2 != null) {
+            var2.close();
+         }
+      } catch (SQLException var7) {
+         this.showAlert("Error", var7.getMessage());
+      }
+
+   }
+
+   private void updateStaff() {
+      String var1 = "UPDATE Staff SET lastName=?, firstName=?, mi=?, address=?, city=?, state=?, telephone=?, email=? WHERE id=?";
+
+      try {
+         PreparedStatement var2 = this.conn.prepareStatement(var1);
+
+         try {
+            var2.setString(1, this.tfLastName.getText().trim());
+            var2.setString(2, this.tfFirstName.getText().trim());
+            var2.setString(3, this.tfMi.getText().trim());
+            var2.setString(4, this.tfAddress.getText().trim());
+            var2.setString(5, this.tfCity.getText().trim());
+            var2.setString(6, this.tfState.getText().trim());
+            var2.setString(7, this.tfTelephone.getText().trim());
+            var2.setString(8, this.tfEmail.getText().trim());
+            var2.setString(9, this.tfId.getText().trim());
+            int var3 = var2.executeUpdate();
+            if (var3 > 0) {
+               this.showAlert("Success", "Record updated successfully!");
+            } else {
+               this.showAlert("Not Found", "No record found with ID " + this.tfId.getText());
+            }
+         } catch (Throwable var6) {
+            if (var2 != null) {
+               try {
+                  var2.close();
+               } catch (Throwable var5) {
+                  var6.addSuppressed(var5);
+               }
+            }
+
+            throw var6;
+         }
+
+         if (var2 != null) {
+            var2.close();
+         }
+      } catch (SQLException var7) {
+         this.showAlert("Error", var7.getMessage());
+      }
+
+   }
+
+   private void showAlert(String var1, String var2) {
+      Alert var3 = new Alert(AlertType.INFORMATION);
+      var3.setTitle(var1);
+      var3.setContentText(var2);
+      var3.showAndWait();
+   }
+
+   public static void main(String[] var0) {
+      launch(var0);
+   }
+}
